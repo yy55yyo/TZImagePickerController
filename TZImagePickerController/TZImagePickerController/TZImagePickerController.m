@@ -29,6 +29,9 @@
     UILabel *_HUDLabel;
     
     UIStatusBarStyle _originStatusBarStyle;
+    
+    //默认打开相机
+    BOOL _initOpenCamera;
 }
 /// Default is 4, Use in photos collectionView in TZPhotoPickerController
 /// 默认4列, TZPhotoPickerController中的照片collectionView
@@ -142,6 +145,10 @@
     return self.statusBarStyle;
 }
 
+- (instancetype)initOpenCameraWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate pushPhotoPickerVc:YES initOpenCamera:YES];
+}
+
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
     return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate pushPhotoPickerVc:YES];
 }
@@ -151,7 +158,12 @@
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:pushPhotoPickerVc initOpenCamera:NO];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc initOpenCamera:(BOOL)initOpenCamera {
     _pushPhotoPickerVc = pushPhotoPickerVc;
+    _initOpenCamera = initOpenCamera;
     TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
     albumPickerVc.isFirstAppear = YES;
     albumPickerVc.columnNumber = columnNumber;
@@ -398,6 +410,10 @@
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
+            if (self->_initOpenCamera) {
+                [photoPickerVc takePhoto];
+                self->_initOpenCamera = NO;
+            }
             self->_didPushPhotoPickerVc = YES;
         }];
     }
