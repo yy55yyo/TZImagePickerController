@@ -207,6 +207,10 @@ static CGFloat itemMargin = 5;
     if (!_models) {
         [self fetchAssetModels];
     }
+    if (self.firstShowCamera) {
+        [self takePhoto];
+        self.firstShowCamera = NO;
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
